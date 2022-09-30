@@ -1,9 +1,10 @@
 import type { NextPage } from "next";
 
 const Home: NextPage = () => {
+  const joinRoom = () => {};
   return (
     <div>
-      <p className='text-red-500'>Hello</p>
+      <button onClick={joinRoom}>Join Room</button>
     </div>
   );
 };
