@@ -2,12 +2,27 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import Ably from "ably/promises";
 
 export default async function handler(
-  _req: NextApiRequest,
+  req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const client = new Ably.Realtime(process.env.ABLY_API_KEY as string);
-  const tokenRequestData = await client.auth.createTokenRequest({
-    clientId: "ably-nextjs-demo",
-  });
-  res.status(200).json(tokenRequestData);
+  const { query, method } = req;
+
+  const clientId: string = query.clientId ? (query.clientId as string) : "";
+
+  console.log(clientId);
+
+  if (method === "GET") {
+    const ablyApiKey = process.env.ABLY_API_KEY;
+
+    const client = new Ably.Realtime(ablyApiKey as string);
+
+    const tokenRequestData = await client.auth.createTokenRequest({
+      clientId,
+    });
+
+    res.status(200).json(tokenRequestData);
+  } else {
+    res.setHeader("Allow", ["GET"]);
+    res.status(405).end(`Method ${method} Not Allowed`);
+  }
 }
