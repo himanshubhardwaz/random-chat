@@ -7,8 +7,6 @@ const ChatComponent = dynamic(() => import("@/components/ChatComponent"), {
 });
 
 const Home: NextPage = () => {
-  //const joinRoom = () => {};
-
   return (
     <Suspense fallback={`Loading...`}>
       <ChatComponent />
