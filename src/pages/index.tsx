@@ -10,7 +10,6 @@ const ChatComponent = dynamic(() => import("@/components/ChatComponent"), {
 
 const Home: NextPage = () => {
   const { status } = useSession();
-
   if (status === "unauthenticated") {
     signIn();
   }
