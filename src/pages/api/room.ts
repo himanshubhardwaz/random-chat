@@ -18,19 +18,18 @@ export default async function handler(
       },
     });
 
-    console.log({ room });
-
     if (room) {
       res.status(200).json(room);
+      return;
+    } else {
+      const newRoom = await prisma.room.create({
+        data: { channelName: uuidv4() },
+      });
+
+      res.status(200).json(newRoom);
+
+      return;
     }
-
-    const newRoom = await prisma.room.create({
-      data: { channelName: uuidv4() },
-    });
-
-    console.log({ newRoom });
-
-    res.status(200).json(newRoom);
   } else {
     res.setHeader("Allow", ["GET"]);
     res.status(405).end(`Method ${method} Not Allowed`);
