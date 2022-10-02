@@ -19,7 +19,7 @@ const Button: FC<Props> = ({
     <button
       type={type}
       disabled={loading}
-      className={`bg-red-500 px-4 py-2 rounded-md ${className} flex`}
+      className={`bg-red-500 px-4 py-2 rounded-md ${className} flex items-center justify-center`}
       {...rest}
     >
       {!loading ? children : "Please Wait ..."}

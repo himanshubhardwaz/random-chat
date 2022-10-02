@@ -2,24 +2,51 @@ import Button from "./Button";
 import { useState } from "react";
 import Ably from "ably/promises";
 import { configureAbly, useChannel } from "@ably-labs/react-hooks";
-import { v4 as uuidv4 } from "uuid";
-import { useQuery } from "@tanstack/react-query";
-
-configureAbly({
-  key: process.env.ABLY_API_KEY,
-  clientId: uuidv4(),
-  authUrl: `/api/createTokenRequest`,
-});
-
-const getRoomDetails = async () => {
-  return await (await fetch("/api/room")).json();
-};
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 
 const ChatComponent: React.FC = () => {
+  const { data: sessionData } = useSession();
+
+  const email = sessionData?.user?.email;
+
+  if (email) {
+    configureAbly({
+      key: process.env.ABLY_API_KEY,
+      clientId: email,
+      authUrl: `/api/createTokenRequest`,
+    });
+  }
+
+  const getRoomDetails = async () => {
+    return await (await fetch("/api/room")).json();
+  };
+
   const { data } = useQuery(["joining-room-info"], getRoomDetails, {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
+    onSuccess: () => {
+      joinChannel();
+    },
   });
+
+  const joinRoom = async () => {
+    return await (
+      await fetch(`/api/room?channelName=${data?.channelName}&status=join`, {
+        method: "PUT",
+      })
+    ).json();
+  };
+
+  const leaveRoom = async () => {
+    return await (
+      await fetch(`/api/room?channelName=${data?.channel}&status=leaveRoom`)
+    ).json();
+  };
+
+  const { mutate: joinChannel, isSuccess: canJoinChannel } =
+    useMutation(joinRoom);
+  const { mutate: leaveChannel } = useMutation(leaveRoom);
 
   const [messageText, setMessageText] = useState<string>("");
   const [messages, setMessages] = useState<Array<Ably.Types.Message>>([]);
@@ -27,7 +54,7 @@ const ChatComponent: React.FC = () => {
   const messageTextIsEmpty = messageText.trim().length === 0;
 
   const [channel] = useChannel(
-    `${data?.channelName}`,
+    `${canJoinChannel ? data?.channelName : null}`,
     (msg: Ably.Types.Message) => {
       setMessages((prevMessages) => [...prevMessages, msg]);
     }
@@ -47,6 +74,7 @@ const ChatComponent: React.FC = () => {
     if (event.key !== "Enter" || messageTextIsEmpty) {
       return;
     }
+    if (event.shiftKey) return;
     sendMessage(messageText);
     event.preventDefault();
   };
@@ -59,8 +87,15 @@ const ChatComponent: React.FC = () => {
     <div className='w-screen h-screen'>
       <div className='h-[90%] w-full'>
         {messages.map((msg) => (
-          <div className='bg-slate-300' key={msg.id}>
-            {msg.data.message}
+          <div className='py-1 px-2' key={msg.id}>
+            <span className='mr-2'>
+              {msg.clientId === email ? (
+                <span className='text-blue-600 font-semibold'>You: </span>
+              ) : (
+                <span className='text-red-600 font-semibold'>Stranger: </span>
+              )}
+            </span>
+            <span className='whitespace-pre-line'>{msg.data.message}</span>
           </div>
         ))}
       </div>
@@ -68,15 +103,18 @@ const ChatComponent: React.FC = () => {
         onSubmit={handleFormSubmission}
         className='flex w-full items-center h-[10%]'
       >
+        <Button type='submit' className='h-full text-white font-semibold'>
+          Leave
+        </Button>
         <textarea
           value={messageText}
           placeholder='Type a message...'
           onChange={(e) => setMessageText(e.target.value)}
           onKeyPress={handleKeyPress}
-          className='px-4 py-2 w-full border-2 h-full'
+          className='px-4 py-2 w-full border-2 h-full resize-none'
           autoFocus
         />
-        <Button type='submit' className='h-12 text-white'>
+        <Button type='submit' className='h-full text-white font-semibold'>
           Send
         </Button>
       </form>
