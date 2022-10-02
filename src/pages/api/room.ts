@@ -58,18 +58,31 @@ export default async function handler(
       where: { channelName: channelName },
     });
 
+    console.log({ channel });
+
     if (channel) {
       if (channel.currentMembersCount <= 1) {
         if (status === "join") {
-          await prisma.room.update({
-            where: { channelName: channelName },
-            data: { currentMembersCount: channel.currentMembersCount + 1 },
-          });
+          if (channel.currentMembersCount === 1) {
+            await prisma.room.delete({
+              where: { channelName: channelName },
+            });
 
-          res.status(200).json({ message: "You can now join room" });
+            res.status(200).json({ message: "You can now join room" });
+          } else {
+            await prisma.room.update({
+              where: { channelName: channelName },
+              data: { currentMembersCount: channel.currentMembersCount + 1 },
+            });
 
-          return;
-        } else if (status === "left") {
+            res.status(200).json({ message: "You can now join room" });
+
+            return;
+          }
+        }
+
+        // currently no use of this
+        else if (status === "left") {
           await prisma.room.update({
             where: { channelName: channelName },
             data: { currentMembersCount: channel.currentMembersCount - 1 },

@@ -44,8 +44,12 @@ const ChatComponent: React.FC = () => {
     ).json();
   };
 
-  const { mutate: joinChannel, isSuccess: canJoinChannel } =
-    useMutation(joinRoom);
+  const {
+    mutate: joinChannel,
+    isSuccess: canJoinChannel,
+    error: joinChannelError,
+  } = useMutation(joinRoom);
+
   const { mutate: leaveChannel } = useMutation(leaveRoom);
 
   const [messageText, setMessageText] = useState<string>("");
@@ -71,10 +75,13 @@ const ChatComponent: React.FC = () => {
   };
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
-    if (event.key !== "Enter" || messageTextIsEmpty) {
+    if (
+      event.key !== "Enter" ||
+      (event.shiftKey && event.key === "Enter") ||
+      messageTextIsEmpty
+    ) {
       return;
     }
-    if (event.shiftKey) return;
     sendMessage(messageText);
     event.preventDefault();
   };
@@ -86,6 +93,11 @@ const ChatComponent: React.FC = () => {
   return (
     <div className='w-screen h-screen'>
       <div className='h-[90%] w-full'>
+        {joinChannelError ? (
+          <span className='text-red-700'>
+            Cannot Join Room!! Please try again later
+          </span>
+        ) : null}
         {messages.map((msg) => (
           <div className='py-1 px-2' key={msg.id}>
             <span className='mr-2'>
