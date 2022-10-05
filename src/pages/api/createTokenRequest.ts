@@ -9,8 +9,6 @@ export default async function handler(
 
   const clientId: string = query.clientId ? (query.clientId as string) : "";
 
-  console.log(clientId);
-
   if (method === "GET") {
     const ablyApiKey = process.env.ABLY_API_KEY;
 

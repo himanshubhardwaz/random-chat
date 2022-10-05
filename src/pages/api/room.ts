@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import {
   TWO_MEMBER_ALREADY_PRESENT,
   REQUIRED_PARAMETERS_MISSING,
+  INVALID_CHANNEL_NAME,
 } from "@/utils/errorCodes";
 
 // this function will return either empty channel-name or a channel with one member
@@ -40,11 +41,11 @@ export default async function handler(
   else if (method === "PUT") {
     const { query } = req;
 
-    const channelName: string = query.channelName
-      ? (query.channelName as string)
-      : "";
+    const channelName: string = (query.channelName as string) ?? "";
 
-    const status: string = query.status ? (query.status as string) : "";
+    const status: string = (query.status as string) ?? "";
+
+    console.log({ channelName, status });
 
     if (!channelName || !status) {
       res.status(404).json({
@@ -82,7 +83,7 @@ export default async function handler(
         }
 
         // currently no use of this
-        else if (status === "left") {
+        else if (status === "leave") {
           await prisma.room.update({
             where: { channelName: channelName },
             data: { currentMembersCount: channel.currentMembersCount - 1 },
@@ -99,6 +100,12 @@ export default async function handler(
           code: TWO_MEMBER_ALREADY_PRESENT,
         });
       }
+    } else {
+      res.status(404).json({
+        message: "Pls pass channel name you want to join",
+        code: INVALID_CHANNEL_NAME,
+      });
+      return;
     }
   } else {
     res.setHeader("Allow", ["GET", "PUT"]);

@@ -40,7 +40,7 @@ const ChatComponent: React.FC = () => {
 
   const leaveRoom = async () => {
     return await (
-      await fetch(`/api/room?channelName=${data?.channel}&status=leaveRoom`)
+      await fetch(`/api/room?channelName=${data?.channel}&status=leave`)
     ).json();
   };
 
