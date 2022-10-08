@@ -45,8 +45,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  currentRoom Room? @relation(fields: [roomId], references: [id])
-  roomId Int?
+  //currentRoom Room? @relation(fields: [roomId], references: [id])
+  //roomId Int?
 }
 
 model VerificationToken {
@@ -61,5 +61,5 @@ model Room {
   id Int @id @default(autoincrement())
   channelName String @unique
   currentMembersCount Int @default(0)
-  users User[]
+  //users User[]
 }
