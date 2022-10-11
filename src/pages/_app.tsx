@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-query";
 import { SessionProvider } from "next-auth/react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import SocketProvider from "@/contexts/SocketContext";
 
 function MyApp({
   Component,
@@ -19,9 +20,9 @@ function MyApp({
   return (
     <SessionProvider session={session} refetchInterval={5 * 60}>
       <QueryClientProvider client={queryClient}>
-        <Hydrate>
+        <SocketProvider>
           <Component {...pageProps} />
-        </Hydrate>
+        </SocketProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </SessionProvider>
