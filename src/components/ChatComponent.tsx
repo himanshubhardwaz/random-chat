@@ -91,8 +91,8 @@ const ChatComponent: React.FC = () => {
   }
 
   return (
-    <div className='w-screen h-screen'>
-      <div className='h-[90%] w-full'>
+    <>
+      <div className='h-[100%] w-full overflow-scroll scrollbar-hide'>
         {joinChannelError ? (
           <span className='text-red-700'>
             Cannot Join Room!! Please try again later
@@ -113,7 +113,7 @@ const ChatComponent: React.FC = () => {
       </div>
       <form
         onSubmit={handleFormSubmission}
-        className='flex w-full items-center h-[10%]'
+        className='flex w-full items-center h-[10%] fixed bottom-0'
       >
         <Button type='submit' className='h-full text-white font-semibold'>
           Leave
@@ -130,7 +130,7 @@ const ChatComponent: React.FC = () => {
           Send
         </Button>
       </form>
-    </div>
+    </>
   );
 };
 

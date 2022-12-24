@@ -26,8 +26,10 @@ const Home: NextPage = () => {
 
   return (
     <Suspense fallback={`Loading...`}>
-      <Header />
-      <ChatComponent />
+      <div className='h-screen overflow-hidden'>
+        <Header />
+        <ChatComponent />
+      </div>
     </Suspense>
   );
 };
